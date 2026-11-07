@@ -24,6 +24,25 @@ jobs:
           pip install --upgrade pip
           pip install buildozer cython
 
+      - name: Create buildozer.spec
+        run: |
+          cat << 'EOF' > buildozer.spec
+          [app]
+          title = Stones
+          package.name = stones
+          package.domain = com.x
+          source.dir = .
+          source.include_exts = py
+          version = 1.0
+          requirements = python3,kivy,plyer
+          orientation = portrait
+          fullscreen = 1
+
+          [buildozer]
+          log_level = 2
+          warn_on_root = 1
+          EOF
+
       - name: Build with Buildozer
         run: |
           buildozer android debug
