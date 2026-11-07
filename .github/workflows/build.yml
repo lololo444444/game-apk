@@ -5,14 +5,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Build with Buildozer
-        uses: ArtemSB/action-buildozer-android@master
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
         with:
           command: android debug
-          
-      - uses: actions/upload-artifact@v4
+          buildozer_version: stable
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: apk
+          name: stones-apk
           path: bin/*.apk
