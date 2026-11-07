@@ -1,0 +1,25 @@
+name: Build
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: android-actions/setup-android@v3
+      - run: |
+          wget -q https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_linux.x86_64.zip
+          unzip -q Godot_v4.2.2-stable_linux.x86_64.zip && chmod +x Godot_v4.2.2-stable_linux.x86_64
+          sudo mv Godot_v4.2.2-stable_linux.x86_64 /usr/local/bin/godot
+          wget -q https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_export_templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/4.2.2.stable
+          unzip -q Godot_v4.2.2-stable_export_templates.tpz -d /tmp/t
+          mv /tmp/t/templates/* ~/.local/share/godot/export_templates/4.2.2.stable/
+      - run: |
+          printf '[preset.0]\nname="Android"\nplatform="Android"\nexport_filter="all_resources"\nexport_path="build/game.apk"\n[preset.0.options]\narchitectures/arm64-v8a=true\npackage/unique_name="com.x.stones"\npackage/name="Stones"\n' > export_presets.cfg
+          mkdir -p build
+          godot --headless --path . --import || true
+          godot --headless --path . --export-debug "Android" build/game.apk
+      - uses: actions/upload-artifact@v4
+        with: { name: apk, path: build/game.apk }
